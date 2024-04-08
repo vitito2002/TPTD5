@@ -16,7 +16,7 @@ def calculate_error(a, b, c):
     x2, y2 = b
     x3, y3 = c
 
-    # Calculate the slope (m) and intercept (b) of the line passing through points a and b
+    # Calculate the slope (m) and intercept (b) of the line passing through points a and b.
     if x2 - x1 == 0:
         # Handle vertical line case
         m = None
