@@ -39,7 +39,7 @@ FB(N,M,K){  // --> DEVUELVE LISTA DE COORDENADAS (DUPLAS)
 
 // caso base:
 if (n>6 v m>6 v m<0 v (k>0 ^ n=6) v (k=0 ^ n<6)){
-    return lista nula
+    return []
 } else if (k=0 ^ n=6){
     return res
 }
