@@ -16,7 +16,7 @@ def calcular_error(inicio, fin, punto):
     return error
 
 
-def FB(N, M, K, res=None, JSON):
+def FB(N, M, K, res=None): # VER COMO METER EL JSON ACA
     if res is None:
         res = []  # Si res no se proporciona, inicializa una nueva lista vacía
 
@@ -27,9 +27,9 @@ def FB(N, M, K, res=None, JSON):
         return res  # Devuelve el resultado final si K es 0 y N es 6
 
     # Caso inductivo:
-    for i in range(1, N + 1):
-        for j in range(-M, M + 1):
+    for i in range(1, N + 1): # REVISAR N+1
+        for j in range(-M, M + 1): # REVISAR M+1
             # Llama recursivamente a la función FB con las coordenadas actuales y K-1, pasando res como parámetro
             # La función FB modificará la lista res en cada llamada, acumulando los nodos del camino
-            return min(calcular_error(FB(i, j, K - 1, res[:] + [(i, j)])))  # Se pasa una copia de la lista res
+            return min(calcular_error(FB(i, j, K - 1, res[:] + [(i, j)])))  # Se pasa una copia de la lista res # CHEQUEAR COMO FUNCIONA ESTO DE [:]
 
