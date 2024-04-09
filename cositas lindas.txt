@@ -2,11 +2,14 @@ ideas backtracking: si en una grilla no hay ningun punto directamente pasar al s
 
 
 PREGUNTAS
-- si la funcion tiene que si o si terminar al final de la grilla o puede terminar antes
-- manera de viti: hacer todos los casos de FB
-- k lo elegimos nosotros y queda fijo / puede ser cualquiera
+
+
+RTAS
+- si la funcion tiene que si o si terminar al final de la grilla o puede terminar antes? SI
+- manera de viti: hacer todos los casos de FB? SI
+- k lo elegimos nosotros y queda fijo / puede ser cualquiera? CUALQUIERA
     - podemos elegir grilla=breakpoints? k=n? asi sabemos que si o si se va a mover 1 casilla adelante y no contemplamos otros casos? POSIBLE PODA??
-- podemos poner FOR que recorra todos los X y todos los Y?
+- podemos poner FOR que recorra todos los X y todos los Y?? SI
 
 fuerza bruta:
 
@@ -20,8 +23,32 @@ casos base:
 - pasarme de n (n>6)
 - pasarme de m (m>6 o m<0)
 - llegar a n=6 y que quede algun breakpoint por hacer (k>0 n=6) 
-- no poder llegar a n=6 (k=0, n<6) (PODA??)
+- no poder llegar a n=6 (k=0, n<6)
+
 
 caso inductivo:
 de la grilla en la que estoy, avanzo i adelante (6<=i>=1) y j arriba o abajo (j real)
 min(error(fb()))
+
+
+PSEUDOCODIGO:
+
+RES:{}
+
+FB(N,M,K){  // --> DEVUELVE LISTA DE COORDENADAS (DUPLAS)
+
+// caso base:
+if (n>6 v m>6 v m<0 v (k>0 ^ n=6) v (k=0 ^ n<6)){
+    return lista nula
+} else if (k=0 ^ n=6){
+    return res
+}
+
+// caso inductivo:
+for i in n (1 a n){
+    for j in m (-m a m){
+        res.append (ij)
+        return min{calcular_e(FB(i,j,k-1))}
+    }
+}
+}
