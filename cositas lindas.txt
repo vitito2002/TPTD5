@@ -49,15 +49,17 @@ for i in n (1 a n){
 }
 }
 
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 BACKTRACKING
 
-ideas backtracking: 
-- si k=n, y en una grilla no hay ningun punto directamente pasar al siguiente
-if k=n {tramo de res solo se puede mover n=1}
+FACTIBILIDAD
+
+- si k=n+1, y en una grilla no hay ningun punto directamente pasar al siguiente
+if k=n+1 {tramo de res solo se puede mover n=1}
+- si k > n+1, no se puede
 - si quedan k breakpoints y m grillas, el tramo actual no puede ser mas grande que X grillas
 if k<N/k {tramo de res solo se puede mover n=[1,2,3]}
 
-
+OPTIMALIDAD
+- si error actual es mayor a error minimo, dejar de iterar
