@@ -1,7 +1,7 @@
 import json
 import numpy as np
 import os  
-from fuerzabruta import FB, calcular_error  # Importa las funciones de fuerzabruta.py
+from algoritmos import FB, calcular_error  # Importa las funciones de fuerzabruta.py
 
 
 BIG_NUMBER = 1e10 # Revisar si es necesario.
