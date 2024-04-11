@@ -38,6 +38,56 @@ for i in n (1 a n){
     }
 }
 }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+FUERZA BRUTA 2.0
+
+parametros:
+- n (grillas X, es decir posibles breakpoints)
+- m (grillas Y, es decir posibles breakpoints)
+- k (breakpoints)
+- puntos (diccionario del json parseado, tiene claves "x" y "y", que contienen listas de coordenadas y "n" indica el número total de puntos disponibles)
+- Res (se inicializa como res = none ,porque hay que tenerlo en cada iteracion)
+
+casos base:
+- pasarme de n (n>6)
+- pasarme de m (m>6 o m<0)
+-
+- llegar a n=6 y que quede algun breakpoint por hacer (k>0 n=6) 
+- no poder llegar a n=6 (k=0, n<6)
+
+caso inductivo:
+de la grilla en la que estoy, avanzo i adelante (6<=i>=1) y j arriba o abajo (j real)
+min(error(fb()))
+
+PSEUDOCODIGO:
+
+def fuerza_bruta_recursiva(N, M, K, puntos, res=None):
+    # Función recursiva de fuerza bruta para buscar la solución óptima
+    if res is None:
+        res = []  # Inicializa una nueva lista vacía si res no se proporciona
+
+    # Caso base:
+    if N > len(puntos["x"]) or M > len(puntos["y"]) or M < 0 or (K > 0 and N == len(puntos["x"])) or (K == 0 and N < len(puntos["x"])):
+        return []  # Devuelve una lista vacía si no se cumple alguna de estas condiciones
+    elif K == 0 and N == len(puntos["x"]):
+        return res  # Devuelve el resultado final si K es 0 y N es igual al número de puntos
+
+    # Caso inductivo:
+    mejor_error = float('inf')  # Inicializa el mejor error con un valor infinito
+    mejor_solucion = None
+
+    for i in range(1, N + 1):
+        for j in range(-M, M + 1):
+            nueva_solucion = res[:] + [(i, j)]
+            error_total = sum(calcular_error(puntos["x"][nueva_solucion[k][0]], puntos["x"][nueva_solucion[k+1][0]], puntos) for k in range(len(nueva_solucion) - 1))
+            
+            if error_total < mejor_error:
+                mejor_error = error_total
+                mejor_solucion = nueva_solucion
+
+    # Llama recursivamente a la función con las nuevas coordenadas y K-1
+    return fuerza_bruta_recursiva(N, M, K - 1, puntos, mejor_solucion)
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
