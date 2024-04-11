@@ -1,15 +1,22 @@
 import json
 import numpy as np
-import fuerzabruta
+import os  
+from fuerzabruta import FB, calcular_error  # Importa las funciones de fuerzabruta.py
 
 
 BIG_NUMBER = 1e10 # Revisar si es necesario.
 
 def main():
-
+	
 	# Ejemplo para leer una instancia con json
 	instance_name = "titanium.json"
-	filename = "../../data/" + instance_name
+	filename = "data/" + instance_name
+	 # Verificar si el archivo existe
+	if not os.path.exists(filename):
+		print(f"Error: No se encontró el archivo {filename}")
+		return
+	 # Verificar si el archivo existe
+	
 	with open(filename) as f:
 		instance = json.load(f)
 	
