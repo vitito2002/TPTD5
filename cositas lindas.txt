@@ -54,4 +54,4 @@ for i in n (1 a n){
 
 BACKTRACKING
 
-ideas backtracking: si en una grilla no hay ningun punto directamente pasar al siguiente
+ideas backtracking: si k=n, y en una grilla no hay ningun punto directamente pasar al siguiente
