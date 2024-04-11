@@ -1,13 +1,3 @@
-PREGUNTAS:
-
-
-RTAS:
-- ¿funcion tiene que si o si terminar al final de la grilla o puede terminar antes? SI
-- ¿manera de viti: hacer todos los casos de FB? SI
-- ¿k lo elegimos nosotros y queda fijo / puede ser cualquiera? CUALQUIERA
-    - ¿k=n? asi sabemos que si o si se va a mover 1 casilla adelante y no contemplamos otros casos? POSIBLE PODA??
-- ¿podemos FOR que recorra todos los X y todos los Y? SI
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 FUERZA BRUTA
