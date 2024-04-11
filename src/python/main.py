@@ -1,5 +1,7 @@
 import json
 import numpy as np
+import fuerzabruta
+
 
 BIG_NUMBER = 1e10 # Revisar si es necesario.
 
@@ -22,6 +24,8 @@ def main():
 
 
 	# TODO: aca se deberia ejecutar el algoritmo.
+	result = function.FB(n, m, K)
+
 
 	best = {}
 	best['sol'] = [None]*(N+1)
