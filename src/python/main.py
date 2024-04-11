@@ -21,8 +21,8 @@ def main():
 		instance = json.load(f)
 	
 	K = instance["n"]
-	m = 6
-	n = 6
+	m = instance["y"]
+	n = instance["x"]
 	N = 5
 	
 	# Ejemplo para definir una grilla de m x n.
