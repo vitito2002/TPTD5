@@ -1,0 +1,175 @@
+-----------------------------------
+
+FB(M,N,K,instance,j,lista_k,error_total,caminos,grilla_x,grilla_y)
+
+j=0
+
+caso base: 
+
+# ALCANCE BREAKPOINTS PEDIDOS [agregar que tiene que si o si llegar a la ultima columna]
+if len(lista_k) = K
+
+    # REGISTRO EN DICCIONARIO LA COMBINACION QUE LOGRE CON SU ERROR CORRESPONDIENTE
+    caminos[tuple(lista_k)] = error_total
+
+    # DEVUELVE DICCIONARIO {COMBINACION DE BREAKPOINTS:ERROR COMBINACION}
+    return lista_k, error_total, caminos
+
+
+caso recursivo:
+
+# NO ALCANCE AUN BREAKPOINTS PEDIDOS
+
+# ITERO SOBRE LAS DISTINTAS COLUMNAS
+for i in range(N):
+
+    # PUEDO AGREGAR MAS BREAKPOINTS O AUN NO ME FUI PARA ARRIBA (OSEA QUE HAY MAS PUNTOS DE LA COLUMNA PARA VISITAR)
+    if not lista_k or j<M:
+
+        # BUSCO VALOR DE NEXT_J 
+
+        # LISTA VACIA (OSEA QUE NO VISITE NINGUN BREAKPOINT DE LA COLUMNA)
+        if not lista_k:
+
+            # PONGO BREAKPOINT EN FILA ACTUAL (LA PRIMERA)
+            next_j = j
+        
+        # LISTA NO VACIA (YA VISITE ALGUN PUNTO DE LA COLUMNA) PERO AUN NO ME PASE DE LA DE MAS ARRIBA
+        else:
+
+            #PASO A LA SIGUIENTE COLUMNA A MENOS QUE SEA MAS ALLA DE M
+            next_j = min(j+1,m)
+
+        # UNA VEZ QUE TENGO NEXT_J, ARMO NUEVA LISTA CON BREAKPOINTS YA VISITADOS Y NUEVO BREAKPOINT (NEXT_J,I)
+        new_breakpoint = lista_k + [(next_j,i)]
+
+        # AHORA PARA IR SUMANDO LOS ERRORES ME FIJO SI ES EL PRIMER BREAKPOINT O SI YA HAY
+
+        # SI YA HAY BREAKPOINTS PREVIOS
+        if lista_k:
+
+            # EL ERROR DEL TRAMO ACTUAL ES EL ERROR ENTRE EL BREAKPOINT ANTERIOR Y ESTE
+            error = calcular_e(lista_k[-1],(next_j,i),grilla_x,grilla_y,instance)
+            
+            # LLAMO RECURSION CON NUEVO BREAKPOINT Y SUMO ERROR DE ESE BREAKPOINT
+            FB(M,N,K,instance,next_j,new_breakpoint,error_total+error,caminos,grilla_x,grilla_y)
+        
+        # SI ES PRIMER BREAKPOINT
+        else:
+
+            # LLAMO RECURSION CON NUEVO BREAKPOINT Y ERROR DE ESE BREAKPOINT
+            FB(M,N,K,instance,next_j,new_breakpoint,error_total,caminos,grilla_x,grilla_y)
+
+# DEVUELVE LISTA DE BREAKPOINTS, ERROR TOTAL Y DICCIONARIO DE CAMINOS
+return lista_k,error_total,caminos
+
+
+	#--------------------- FUNCIONES AUXILIARES (PARA ARMADO FUNCIONES PRINCIPALES)---------------------------------------------
+
+	def f_en_tramo(x0,y0,x1,y1,x): #Calcula el valor de la recta
+		return (((y1-y0)/(x1-x0))*(x-x0)) + y0 # Simplemente calcula con la formula provista en el PDF
+
+	def estimar_error_y(sol,x, y): #Calcula el valor de la recta
+		i = 0  # Establecemos i = 0
+		error = 0 # Establecemos error = 0 para sumar cada error del tramo
+
+		while i < (len(sol) - 1): # Desde i=0 hasta sol-1 (ya que tomamos el valor i e i+1 de la sol)
+			sub_x, sub_y = subconjunto(x, y, sol[i][0], sol[i+1][0]) # Generamos subconjunto de X e Y correspondiente al tramo
+			sub_x = np.array(sub_x) # Convertimos a Array de numpy
+			prediccion = f_en_tramo(sol[i][0], sol[i][1], sol[i+1][0], sol[i+1][1], sub_x) # Calculamos la estimación para cada punto
+			error = error + calcular_error(prediccion,sub_y) # Calculamos el error de ese tramo y sumamos al anterior
+			i = i + 1 #Pasamos de valor de i
+		return error # Retornamos la suma de errores
+	
+	def calcular_error(vector1, vector2): # Tomo como entrada el vector predicción y vector 'y' reales
+		diferencia = np.abs(vector1 - vector2) # Calcula diferencia en valor absoluto de cada predicción 
+		error = np.sum(diferencia) # Sumamos todos los errores
+		return error # Retornamos suma de errores
+	
+	def subconjunto(x,y,x0,x1):
+		sub_X = [x_i for x_i in x if x0 <= x_i <= x1] # Generamos subconjunto de x entre X_0 y X_1
+		indice_inferior = x.index(sub_X[0]) # Conseguimos indice inferior
+		indice_superior = indice_inferior + len(sub_X) # De igual manera para el indice Superior
+		sub_Y = y[indice_inferior:indice_superior] # Generamos subconjunto de y respecto al subconjunto de x
+		return sub_X, sub_Y # Retornamos ambos subconjuntos
+
+	def estimar_error_y_pd(sol,x , y ,memo): #Calcula el valor de la recta
+		key = tuple(sol)
+		if key in memo:
+			return memo[key], memo
+		i = 0  # Establecemos i = 0
+		error = 0 # Establecemos error = 0 para sumar cada error del tramo
+		while i < (len(sol) - 1): # Desde i=0 hasta sol-1 (ya que tomamos el valor i e i+1 de la sol)
+			sub_x, sub_y = subconjunto(x, y, sol[i][0], sol[i+1][0]) # Generamos subconjunto de X e Y correspondiente al tramo
+			sub_x = np.array(sub_x) # Convertimos a Array de numpy
+			prediccion = f_en_tramo(sol[i][0], sol[i][1], sol[i+1][0], sol[i+1][1], sub_x) # Calculamos la estimación para cada punto
+			error = error + calcular_error(prediccion,sub_y) # Calculamos el error de ese tramo y sumamos al anterior
+			i = i + 1 #Pasamos de valor de i
+		memo[key] = error
+		return error, memo # Retornamos la suma de errores
+	#--------------------------------------------------------------------------------------------------------------------
+	
+	#-- FUERZA BRUTA ----------------------------------------------------------------------------------------------------
+
+	sol = [] 
+
+	def fuerza_bruta(grid_x, grid_y, x, y, N, sol_parcial):
+
+	# CASO BASE: LONG DE GRID_X MENOR A BREAKPOINTS QUE FALTAN PARA SOLUCION
+		if ( len(grid_x) + 1 < N - (len(sol_parcial)) ): 
+			return {'error':1e10}
+	
+	# CASO ALCANZAMOS LOS BREAKPOINTS PEDIDOS
+		elif(len(sol_parcial) == N):
+
+		# DEVUELVE ERROR ENTRE SOL_PARCIAL Y DATOS X,Y
+			error_actual = estimar_error_y(sol_parcial, x, y)
+			return {'error':error_actual,'puntos':sol_parcial.copy()}
+		
+	else:
+
+		# SOL_GLOBAL CON ERROR ALTISIMO
+			sol_global = {'error':1e10}
+		
+		# SI QUEDA UN SOLO BREAKPOINT, TIENE QUE SER EN EL ULTIMO PUNTO DE X
+			if(N - (len(sol_parcial)) == 1): 
+
+			# GRILLA REDUZCO A LA ULTIMA COLUMNA
+				grid_x = [grid_x[-1]]
+			
+		# ITERA SOBRE FILAS (GRID_Y)
+			for i in grid_y:
+
+			# AÑADE BREAKPOINT A LA SOL PARCIAL
+				sol_parcial.append((grid_x[0], i))
+
+			# RECURSION FB CON SIGUIENTE CJTO DE VALORES DE GRID_X
+				parcial = fuerza_bruta(grid_x[1:], grid_y, x, y, N, sol_parcial) 
+			
+			# SI EL ERROR DE LA SOL PARCIAL ES MENOR, ACTUALIZA SOL GLOBAL
+				if(parcial['error'] < sol_global['error']):
+					sol_global = parcial
+			
+			# ELIMINA EL ULTIMO PUNTO DE LA SOL PARCIAL PARA CONTINUAR EXPLORANDO
+				sol_parcial.pop()
+
+		# SI SOL PARCIAL NO ESTA VACIA
+			if(len(sol_parcial) > 0):
+
+			# RECURSION FB CON SIGUIENTE CONJUNTO DE GRID_x
+				parcial = fuerza_bruta(grid_x[1:], grid_y, x, y, N, sol_parcial)
+
+		# SI EL ERROR DE LA SOL PARCIAL ES MENOR, ACTUALIZA SOL GLOBAL
+			if(parcial['error'] < sol_global['error']):
+				sol_global = parcial
+
+	# DEVUELVE MEJOR SOL GLOBAL
+		return  sol_global
+	
+	inicio_fuerzabruta = time.time()
+	print('Brute Force ',fuerza_bruta(grid_x,grid_y,x,y,5,sol))
+	fin_fuerzabruta = time.time()
+	tiempo_fuerzabruta = fin_fuerzabruta - inicio_fuerzabruta
+	print(tiempo_fuerzabruta)
+	
+	
