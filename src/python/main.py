@@ -1,13 +1,14 @@
 import json
 import numpy as np
 import time
+import matplotlib.pyplot as plt
 
 BIG_NUMBER = 1e10 # Revisar si es necesario.
 
 def main():
 
 	# Ejemplo para leer una instancia con json
-	instance_name = "titanium.json"
+	instance_name = "optimistic_instance.json"
 	filename = "data/" + instance_name
 	with open(filename) as f:
 		instance = json.load(f)
@@ -143,5 +144,23 @@ def main():
 	with open('solution_' + instance_name, 'w') as f:
 		json.dump(solution, f)
 	
+	###GRafico
+
+	plt.figure(figsize=(10, 6))
+	solucion = FB(grid_x,grid_y,x,y,5,sol)['puntos']
+    
+	x_solucion = [p[0] for p in solucion]
+	y_solucion = [p[1] for p in solucion]
+    
+	plt.plot(x_solucion, y_solucion, marker='o', color='blue', label='Puntos de la solución')
+	
+	plt.scatter(x, y, marker='o', label='Puntos del JSON)  # 'marker='o'' agrega puntos en los puntos de datos
+	plt.xlabel('Coordenada X')
+	plt.ylabel('Coordenada Y')
+
+	plt.title('Gráfico de Líneas de Puntos')
+	plt.grid(True)  # Mostrar cuadrícula
+	plt.show()
+
 if __name__ == "__main__":
 	main()
