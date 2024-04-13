@@ -95,15 +95,13 @@ BACKTRACKING
 
 FACTIBILIDAD
 
-- si k=n+1, y en una grilla no hay ningun punto directamente pasar al siguiente
-if k=n+1 {tramo de res solo se puede mover n=1}
-- si k > n+1, no se puede
+- si k=n+1 {tramo de res solo se puede mover n=1} (FB)
+- si k > n+1, no se puede 
 - si quedan k breakpoints y m grillas, el tramo actual no puede ser mas grande que X grillas
-    Cada salto no puede sejar menos casillas que breakpoints restantes.
-if k<N/k {tramo de res solo se puede mover n=[1,2,3]}
+    Cada salto no puede dejar menos casillas que breakpoints restantes. (FB)
 
 OPTIMALIDAD
-- si error actual es mayor a error minimo, dejar de iterar
+- si error actual es mayor a error minimo, dejar de iterar (BT)
         calcular error acumulado si agregamos breakpoint
 - si el error es 0, terminar la funcon y devolver eso
         if recursion['error'] == 0:
