@@ -7,6 +7,7 @@ BIG_NUMBER = 1e10 # Revisar si es necesario.
 
 def main():
 
+	jsons = ['aspen_simulation.json', 'ethanol_water_vle.json', 'optimistic_instance.json', 'titanium.json', 'toy_instance.json']
 	# Ejemplo para leer una instancia con json
 	instance_name = "optimistic_instance.json"
 	filename = "data/" + instance_name
@@ -73,16 +74,16 @@ def main():
 			return {'error':1e10}
 
          # CASO BASE: # alcance los breakpoints pedidos
-		elif len(sol) == _k:
+		elif len(sol) == _k: # y que no haya llegado al final
             # DEVUELVO combinacion de breakpoints con error correspondiente #¿QUIZAS ARMAR UN DICC COMO VARIABLE PRIMERO?
-			return {'error':calcular_error(sol, x, y), 'puntos':sol.copy()}
+			if grid_x.size == 0 : # ultima breakpoint en grilla
+				return {'error':calcular_error(sol, x, y), 'puntos':sol.copy()}
+			else:
+				return {'error':1e10}
         
 		else:
             # armo una solucion con error altisimo para despues ir reemplazando
-			mejores_breakpoints = {'error':9999999999999999999999}
-            
-			if (_k - (len(sol)) == 1):
-				grid_x = [grid_x[-1]]   
+			mejores_breakpoints = {'error':1e10}
 
 			# itero sobre filas
 			for i in grid_y:
@@ -108,17 +109,69 @@ def main():
 
 			return mejores_breakpoints
 
-
 	
+#///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	def BT(grid_x, grid_y, x, y, _k, sol):
+
+		if (len(grid_x) < _k - (len(sol))):
+			return {'error':1e10}
+
+			# CASO BASE: # alcance los breakpoints pedidos
+		elif len(sol) == _k:
+			# DEVUELVO combinacion de breakpoints con error correspondiente #¿QUIZAS ARMAR UN DICC COMO VARIABLE PRIMERO?
+			return {'error':calcular_error(sol, x, y), 'puntos':sol.copy()}
+		
+		else:
+			# armo una solucion con error altisimo para despues ir reemplazando
+			mejores_breakpoints = {'error':9999999999999999999999}
+			
+			if (_k - (len(sol)) == 1):
+				grid_x = [grid_x[-1]]   
+
+			# itero sobre filas
+			for i in grid_y:
+				# sumo breakpoint
+				sol.append((grid_x[0],i))
+				
+				if (calcular_error(sol, x, y) < mejores_breakpoints['error']):
+					recursion = BT(grid_x[1:],grid_y, x, y, _k, sol)			
+					if recursion['error'] < mejores_breakpoints['error']:
+						mejores_breakpoints = recursion
+
+				sol.pop()
+
+			if len(sol)>0 :
+				# recorto valores de gridX y hago recursion
+				recursion = BT(grid_x[1:],grid_y,x,y,_k,sol)
+
+				# si error de la parcial es menor la reemplazo
+			if recursion['error'] < mejores_breakpoints['error']:
+				mejores_breakpoints = recursion
+
+			return mejores_breakpoints
 
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	comienzo_timer_FB = time.time()
-	print('Fuerza Bruta ',FB(grid_x,grid_y,x,y,5,sol))
+	FuerzaBruta = FB(grid_x, grid_y, x, y, N, sol)
 	fin_timer_FB = time.time()
+
 	timer_FB = fin_timer_FB - comienzo_timer_FB
-	print('Tiempo FB:',timer_FB)
-	
+	print('Fuerza Bruta: ', FuerzaBruta,'\n''Tiempo de ejecucion: ',timer_FB)
+
+#/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	comienzo_timer_BT = time.time()
+	BackTracking = BT(grid_x,grid_y,x,y,N,sol)
+	fin_timer_BT = time.time()
+
+	timer_BT = fin_timer_BT - comienzo_timer_BT
+
+	print('Backtracking: ', BackTracking,'\n''Tiempo de ejecucion: ',timer_BT)
+
+#///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 	best = {}
 	best['sol'] = [None]*(N+1)
 	best['obj'] = BIG_NUMBER
@@ -145,7 +198,7 @@ def main():
 		json.dump(solution, f)
 	
 	###GRafico
-
+"""
 	plt.figure(figsize=(10, 6))
 	solucion = FB(grid_x,grid_y,x,y,5,sol)['puntos']
     
@@ -154,13 +207,14 @@ def main():
     
 	plt.plot(x_solucion, y_solucion, marker='o', color='blue', label='Puntos de la solución')
 	
-	plt.scatter(x, y, marker='o', label='Puntos del JSON)  # 'marker='o'' agrega puntos en los puntos de datos
+	plt.scatter(x, y, marker='o', label='Puntos del JSON')  # marker='o'' agrega puntos en los puntos de datos
 	plt.xlabel('Coordenada X')
 	plt.ylabel('Coordenada Y')
 
 	plt.title('Gráfico de Líneas de Puntos')
 	plt.grid(True)  # Mostrar cuadrícula
 	plt.show()
-
+"""
+	
 if __name__ == "__main__":
 	main()

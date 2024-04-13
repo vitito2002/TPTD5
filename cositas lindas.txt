@@ -91,7 +91,7 @@ def fuerza_bruta_recursiva(N, M, K, puntos, res=None):
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-BACKTRACKING
+BACKTRACKING: PODAS
 
 FACTIBILIDAD
 
@@ -99,6 +99,7 @@ FACTIBILIDAD
 - si k > n+1, no se puede 
 - si quedan k breakpoints y m grillas, el tramo actual no puede ser mas grande que X grillas
     Cada salto no puede dejar menos casillas que breakpoints restantes. (FB)
+- ultimo breakpoint esta en ultima fila (BT)
 
 OPTIMALIDAD
 - si error actual es mayor a error minimo, dejar de iterar (BT)
