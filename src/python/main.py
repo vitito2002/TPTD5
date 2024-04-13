@@ -19,7 +19,7 @@ def main():
 	n = 6
 	N = 5
 	
-	# Ejemplo para definir una grilla de m x n.
+	# Ejemplo para definir una grilla de m x n
  
 	# np.linspace genera:
  		# M puntos equiespaciados en grid_x desde el valor minimo hasta el maximo de instance["x"]
@@ -30,7 +30,7 @@ def main():
 	x = instance['x']
 	y = instance['y']
 
-	sol= []
+	sol= [] 
 
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
