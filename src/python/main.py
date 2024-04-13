@@ -158,7 +158,7 @@ def main():
 	fin_timer_FB = time.time()
 
 	timer_FB = fin_timer_FB - comienzo_timer_FB
-	print('Fuerza Bruta: ', FuerzaBruta,'\n''Tiempo de ejecucion: ',timer_FB)
+	print('Fuerza Bruta: ', FuerzaBruta,'\n''Tiempo de ejecucion FB: ',timer_FB)
 
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	comienzo_timer_BT = time.time()
@@ -167,7 +167,7 @@ def main():
 
 	timer_BT = fin_timer_BT - comienzo_timer_BT
 
-	print('Backtracking: ', BackTracking,'\n''Tiempo de ejecucion: ',timer_BT)
+	print('Backtracking: ', BackTracking,'\n''Tiempo de ejecucion BT   : ',timer_BT)
 
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
