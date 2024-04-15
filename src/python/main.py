@@ -172,6 +172,47 @@ def main():
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+
+# Seccion PROGRA DINAMICA
+
+	def calcular_error_MEMO(sol, x, y):
+
+		clave = tuple(sol)
+
+		if clave in memo:
+			return memo[clave],memo
+		
+		else:
+
+			error_funcion = 0
+			
+			# para iterar los breakpoints
+			for i, (primer, ultimo) in enumerate(zip(sol[:-1], sol[1:])):
+
+				# me fijo si cada punto del json esta en el dominio entre breakpoints
+				x_en_rango = [punto for punto in x if primer[0] <= punto <= ultimo[0]]
+				
+				# guardo el y de cada uno de los puntos de x_en_rango para despues poder calcular el error 
+				primer_y, ultimo_y = [x.index(x_en_rango[0]), x.index(x_en_rango[-1]) + 1]
+				y_en_rango = y[primer_y:ultimo_y]
+
+				# armo tramo entre los dos breakpoints para despues distancia a punto
+				pendiente = (ultimo[1] - primer[1]) / (ultimo[0] - primer[0])
+				ordenada_al_origen = primer[1] - pendiente * primer[0]
+
+				# defino funcion y calculo el error para cada punto
+				diferencia = [
+					abs(pendiente * punto + ordenada_al_origen - y_en_rango[j]) 
+					for j, punto in enumerate(x_en_rango)
+				]
+
+				# sumo todos los errores :)
+				error_funcion += np.sum(diferencia)
+
+				memo[clave] = error_funcion
+			
+			return error_funcion, memo
+
 	best = {}
 	best['sol'] = [None]*(N+1)
 	best['obj'] = BIG_NUMBER
