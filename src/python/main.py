@@ -172,11 +172,11 @@ def main():
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-
 # Seccion PROGRA DINAMICA
 
-	def calcular_error_MEMO(sol, x, y):
+	def calcular_error_MEMO(sol, x, y, memo):
 
+		# key va a ser dos breakpoints {(x1,y1),(x2,y2)}
 		clave = tuple(sol)
 
 		if clave in memo:
@@ -212,6 +212,61 @@ def main():
 				memo[clave] = error_funcion
 			
 			return error_funcion, memo
+		
+
+	def PD(grid_x, grid_y, x, y, _k, sol, memo):
+
+		if (len(grid_x) < _k - (len(sol))):
+			return {'error':1e10}, memo
+
+			# CASO BASE: # alcance los breakpoints pedidos
+		elif len(sol) == _k:
+
+			# DEVUELVO combinacion de breakpoints con error correspondiente #¿QUIZAS ARMAR UN DICC COMO VARIABLE PRIMERO?
+			return {'error': calcular_error_MEMO(sol, x, y, memo)[0], 'puntos': sol.copy()}, calcular_error_MEMO(sol, x, y, memo)[1]
+		
+		else:
+			# armo una solucion con error altisimo para despues ir reemplazando
+			mejores_breakpoints = {'error':9999999999999999999999}
+			
+			if (_k - (len(sol)) == 1):
+				grid_x = [grid_x[-1]]   
+
+			# itero sobre filas
+			for i in grid_y:
+				# sumo breakpoint
+				sol.append((grid_x[0],i))
+				
+				if (calcular_error_MEMO(sol, x, y, memo)[0] < mejores_breakpoints['error']):
+					recursion, memo = PD(grid_x[1:],grid_y, x, y, _k, sol, memo)			
+					if recursion['error'] < mejores_breakpoints['error']:
+						mejores_breakpoints = recursion
+
+				sol.pop()
+
+			if len(sol)>0 :
+				# recorto valores de gridX y hago recursion
+				recursion, memo =PD(grid_x[1:],grid_y,x,y,_k,sol, memo)
+
+				# si error de la parcial es menor la reemplazo
+			if recursion['error'] < mejores_breakpoints['error']:
+				mejores_breakpoints = recursion
+
+			return mejores_breakpoints, memo
+
+	pitulon = {}
+
+	#/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	comienzo_timer_PD = time.time()
+	ProgramacionDinamica = (PD(grid_x,grid_y,x,y,N,sol,pitulon)[0])
+	fin_timer_PD = time.time()
+
+	timer_PD = fin_timer_PD - comienzo_timer_PD
+
+	print('Programacion Dinamica: ', ProgramacionDinamica,'\n''Tiempo de ejecucion PD   : ',timer_PD)
+
+#///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 	best = {}
 	best['sol'] = [None]*(N+1)
