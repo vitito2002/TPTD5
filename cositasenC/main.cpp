@@ -1,13 +1,242 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include "include/json.hpp"
+#include "json.hpp"
+
+#include <vector> // calc error
+#include <cmath> // calc error
+
+#include <vector> //FB
+#include <algorithm> //FB
+
+#include <chrono> //timer
+#include <utility>
+
+#include <iterator>
+
+#include <map> //PD
 
 // Para libreria de JSON.
 using namespace nlohmann;
 
+// sol = std::pair<double,double>. vector de pares (breakpoints)
+// x = double. coordenadas x del json
+// y = double. coordenadas y del json
+
+////////////////////////////////////////////////////////////// CALC ERROR ///////////////////////////////////////////////////////
+
+double calcular_error (const std::vector<std::pair<double,double>>&sol,
+const std::vector<double>&x,
+    const std::vector<double>&y){
+
+    double error_funcion = 0.0;
+
+    // recorro breakpoints de i=0 a sol.size()-2
+    for (size_t i=0; i<sol.size() - 1; i++){ 
+        auto primer = sol[i]; // breakpoint a
+        auto ultimo = sol[i+1]; // breakpoint b
+
+        // listas con los valores 'x' e 'y' en el dominio del segmento de breakpoints actual
+        std:: vector<double> x_en_rango;
+        std:: vector<double> y_en_rango;
+
+        for (size_t j=0; j < x.size(); ++j){
+            if (x[j] >= primer.first && x[j] <= ultimo.first){
+                x_en_rango.push_back(x[j]);
+                y_en_rango.push_back(y[j]);
+            }
+        }
+
+        // datos de linea de breakpoints actuales
+        double pendiente = (ultimo.second - primer.second) / (ultimo.first - primer.first);
+        double ordenada_al_origen = primer.second - pendiente * primer.first;
+
+        // diferencia entre la funcion y cada punto (y_en_rango[j])
+        for (size_t j = 0; j < x_en_rango.size(); ++j){
+            double diferencia = std::abs(pendiente * x_en_rango[j] + ordenada_al_origen - y_en_rango[j]);
+            error_funcion += diferencia;
+        }
+    }
+
+    return error_funcion;
+}
+
+/////////////////////////////////////////////////////////////// STRUCT ////////////////////////////////////////////////////////////////////
+
+struct Resultado { 
+    double error = 1e10;
+    std::vector<std::pair<double,double>> puntos;
+    
+};
+
+    // grid_x = std::vector<double> vector con valores de quiebre en eje x
+    // grid_y = std::vector<double> vector con valores de quiebre en eje y
+
+//////////////////////////////////////////////////////////////////////// FUERZA BRUTA ///////////////////////////////////////////////
+
+Resultado FB(const std::vector<double>&grid_x, const std::vector<double>&grid_y, const std::vector<double>&x, const std::vector<double>&y, int k, std::vector<std::pair<double,double>>&sol){
+
+    if (grid_x.size() < static_cast<size_t>(k-sol.size())){
+        Resultado resultado;
+        resultado.error = 1e10;
+        return resultado;
+    }
+
+    else if (sol.size() == static_cast<size_t>(k)){      
+        Resultado resultado;
+        if (grid_x.empty()){ resultado.error = calcular_error(sol,x,y); }
+        else{ resultado.error = 1e10; }
+        resultado.puntos = sol; return resultado;
+    }
+
+    Resultado mejores_breakpoints;
+
+    for (double i:grid_y){
+        sol.push_back({grid_x[0],i});
+        Resultado recursion = FB(std::vector<double>(grid_x.begin()+1,grid_x.end()),grid_y,x,y,k,sol);
+        if (recursion.error < mejores_breakpoints.error){ mejores_breakpoints = recursion; }  
+        sol.pop_back();
+    }
+
+    if (sol.size() > 0){
+        Resultado recursion = FB(std::vector<double>(grid_x.begin()+1,grid_x.end()),grid_y,x,y,k,sol);
+        if (recursion.error < mejores_breakpoints.error){ mejores_breakpoints = recursion; }
+    }
+    return mejores_breakpoints;
+}
+
+///////////////////////////////////////////////////////////////// BACK TRACKING /////////////////////////////////////////////////////
+
+    Resultado BT(const std::vector<double>&grid_x, const std::vector<double>&grid_y, const std::vector<double>&x, const std::vector<double>&y, int k, std::vector<std::pair<double,double>>&sol){
+
+    if (grid_x.size() < static_cast<size_t>(k-sol.size())){
+        Resultado resultado;
+        resultado.error = 1e10;
+        return resultado;
+    }
+
+    else if (sol.size() == static_cast<size_t>(k)){      
+        Resultado resultado;
+        resultado.error = calcular_error(sol,x,y);
+        resultado.puntos = sol; return resultado;
+    }
+
+    Resultado mejores_breakpoints;
+
+    if (k-sol.size() == 1){
+    const std::vector<double> temp = {grid_x.back()};
+    const_cast<std::vector<double>&>(grid_x).assign(temp.begin(), temp.end());
+    }
+
+    for (double i:grid_y){
+        sol.push_back({grid_x[0],i});
+
+        if(calcular_error(sol,x,y)< mejores_breakpoints.error){
+            Resultado recursion = FB(std::vector<double>(grid_x.begin()+1,grid_x.end()),grid_y,x,y,k,sol);
+
+            if (recursion.error < mejores_breakpoints.error){ mejores_breakpoints = recursion; }  
+        }
+        sol.pop_back();
+    }
+
+    if (sol.size() > 0){
+        Resultado recursion = FB(std::vector<double>(grid_x.begin()+1,grid_x.end()),grid_y,x,y,k,sol);
+        if (recursion.error < mejores_breakpoints.error){ mejores_breakpoints = recursion; }
+    }
+    return mejores_breakpoints;
+}
+
+///////////////////////////////////////////////////////////////////// PD //////////////////////////////////////////////////////////
+
+std::pair<double, std::map <std::vector<std::pair<double,double>>,double>> calcular_error_MEMO (const std::vector<std::pair<double,double>>&sol,const std::vector<double>&x, const std::vector<double>&y,std::map<std::vector<std::pair<double, double>>, double>& memo){
+
+    std::vector<std::pair<double,double>> clave = sol;
+
+    auto it = memo.find(clave);
+    if (it != memo.end()){
+        return std:: make_pair(it->second,memo);
+    }
+
+    double error_funcion = 0.0;
+
+    // recorro breakpoints de i=0 a sol.size()-2
+    for (size_t i=0; i<sol.size() - 1; i++){ 
+        auto primer = sol[i]; // breakpoint a
+        auto ultimo = sol[i+1]; // breakpoint b
+
+        // listas con los valores 'x' e 'y' en el dominio del segmento de breakpoints actual
+        std:: vector<double> x_en_rango;
+        std:: vector<double> y_en_rango;
+
+        for (size_t j=0; j < x.size(); ++j){
+            if (x[j] >= primer.first && x[j] <= ultimo.first){
+                x_en_rango.push_back(x[j]);
+                y_en_rango.push_back(y[j]);
+            }
+        }
+
+        // datos de linea de breakpoints actuales
+        double pendiente = (ultimo.second - primer.second) / (ultimo.first - primer.first);
+        double ordenada_al_origen = primer.second - pendiente * primer.first;
+
+        // diferencia entre la funcion y cada punto (y_en_rango[j])
+        for (size_t j = 0; j < x_en_rango.size(); ++j){
+            double diferencia = std::abs(pendiente * x_en_rango[j] + ordenada_al_origen - y_en_rango[j]);
+            error_funcion += diferencia;
+        }
+    }
+    memo[clave] = error_funcion;
+
+    return std::make_pair(error_funcion,memo);
+}
+
+    Resultado PD(const std::vector<double>&grid_x, const std::vector<double>&grid_y, const std::vector<double>&x, const std::vector<double>&y, int k, std::vector<std::pair<double,double>>&sol,std::map<std::vector<std::pair<double, double>>, double>&memo){
+
+    if (grid_x.size() < static_cast<size_t>(k-sol.size())){
+        Resultado resultado;
+        resultado.error = 1e10;
+        return resultado;
+    }
+
+    else if (sol.size() == static_cast<size_t>(k)){      
+        Resultado resultado;
+        resultado.error = calcular_error_MEMO(sol,x,y,memo).first;
+        resultado.puntos = sol; return resultado;
+    }
+
+    Resultado mejores_breakpoints;
+
+    if (k-sol.size() == 1){
+    const std::vector<double> temp = {grid_x.back()};
+    const_cast<std::vector<double>&>(grid_x).assign(temp.begin(), temp.end());
+    }
+
+    for (double i:grid_y){
+        sol.push_back({grid_x[0],i});
+
+        if(calcular_error_MEMO(sol,x,y,memo).first< mejores_breakpoints.error){
+            Resultado recursion = FB(std::vector<double>(grid_x.begin()+1,grid_x.end()),grid_y,x,y,k,sol);
+
+            if (recursion.error < mejores_breakpoints.error){ mejores_breakpoints = recursion; }  
+        }
+        sol.pop_back();
+    }
+
+    if (sol.size() > 0){
+        Resultado recursion = FB(std::vector<double>(grid_x.begin()+1,grid_x.end()),grid_y,x,y,k,sol);
+        if (recursion.error < mejores_breakpoints.error){ mejores_breakpoints = recursion; }
+    }
+    return mejores_breakpoints;
+}
+
+//////////////////////////////////////////////////////////// MAIN //////////////////////////////////////////////////////
+
+
 int main(int argc, char** argv) {
-    std::string instance_name = "data/titanium.json";
+
+//////////////////////////////////////////////////////// JSON ///////////////////////////////////////////////////////////////////////
+
+    std::string instance_name = "titanium.json";
     std::cout << "Reading file " << instance_name << std::endl;
     std::ifstream input(instance_name);
 
@@ -15,17 +244,97 @@ int main(int argc, char** argv) {
     input >> instance;
     input.close();
 
+////////////////////////////////////////////////////////// MAIN CATEDRA //////////////////////////////////////////////////////////
+
     int K = instance["n"];
     int m = 6;
     int n = 6;
     int N = 5;
 
-    std::cout << K << std::endl;
+     // Extraer `x` e `y` del JSON y almacenarlos en vectores
+    std::vector<double> x = instance["x"].get<std::vector<double>>();
+    std::vector<double> y = instance["y"].get<std::vector<double>>();
+    
 
-    // Aca empieza la magia.
+///////////////////////////////////////////////////////////////////// CREO GRID_X GRID_Y ///////////////////////////////////////////
 
-    // Ejemplo para guardar json.
-    // Probamos guardando el mismo JSON de instance, pero en otro archivo.
+    // Crear `grid_x` y `grid_y` con valores equiespaciados
+    // Obteniendo los valores mínimo y máximo de `x` e `y`
+    auto [min_x, max_x] = std::minmax_element(x.begin(), x.end());
+    auto [min_y, max_y] = std::minmax_element(y.begin(), y.end());
+    
+    // Crear `grid_x` con valores equiespaciados entre min_x y max_x
+    std::vector<double> grid_x;
+    for (int i = 0; i < m; ++i) {
+        double value = *min_x + i * ((*max_x - *min_x) / (m - 1));
+        grid_x.push_back(value);
+    }
+
+    // Crear `grid_y` con valores equiespaciados entre min_y y max_y
+    std::vector<double> grid_y;
+    for (int i = 0; i < n; ++i) {
+        double value = *min_y + i * ((*max_y - *min_y) / (n - 1));
+        grid_y.push_back(value);
+    }
+
+    // Inicializar `sol` como un vector vacío de pares de `double`
+    std::vector<std::pair<double, double>> sol;
+
+    std::cout <<"Cantidad de puntos JSON: "<< K << std::endl;
+///////////////////////////////////////////////////////////////// EJECUCION FB //////////////////////////////////////////////////////////////
+ 
+    // Medir el tiempo de ejecución de la función FB
+    auto comienzo_timer_FB = std::chrono::high_resolution_clock::now();
+    Resultado FuerzaBruta = FB(grid_x, grid_y, x, y, N, sol);
+    auto fin_timer_FB = std::chrono::high_resolution_clock::now();
+
+    // Calcular la duración en segundos
+    std::chrono::duration<double> timer_FB = fin_timer_FB - comienzo_timer_FB;
+
+    // Imprimir los resultados
+    std::cout << "Fuerza Bruta: error = " << FuerzaBruta.error << ", puntos = ";
+    for (const auto& punto : FuerzaBruta.puntos) {
+        std::cout << "(" << punto.first << ", " << punto.second << ") ";
+    }
+    std::cout << "\nTiempo de ejecución FB: " << timer_FB.count() << " segundos" << std::endl;
+
+//////////////////////////////////////////////////////////////////////// EJECUCION BT //////////////////////////////////////////////
+
+    // Medir el tiempo de ejecución de la función BT
+    auto comienzo_timer_BT = std::chrono::high_resolution_clock::now();
+    Resultado BackTracking = BT(grid_x, grid_y, x, y, N, sol);
+    auto fin_timer_BT = std::chrono::high_resolution_clock::now();
+
+    // Calcular la duración en segundos
+    std::chrono::duration<double> timer_BT = fin_timer_BT - comienzo_timer_BT;
+
+    // Imprimir los resultados
+    std::cout << "Back Tracking: error = " << BackTracking.error << ", puntos = ";
+    for (const auto& punto : BackTracking.puntos) {
+        std::cout << "(" << punto.first << ", " << punto.second << ") ";
+    }
+    std::cout << "\nTiempo de ejecución BT: " << timer_BT.count() << " segundos" << std::endl;
+
+    //////////////////////////////////////////////////////////// EJECUCION PD /////////////////////////////////////////////////////////////////
+
+    std::map<std::vector<std::pair<double, double>>, double> pitulon;
+
+    // Medir el tiempo de ejecución de la función BT
+    auto comienzo_timer_PD = std::chrono::high_resolution_clock::now();
+    Resultado PrograDinamica = (PD(grid_x, grid_y, x, y, N, sol,pitulon));
+    auto fin_timer_PD = std::chrono::high_resolution_clock::now();
+
+    // Calcular la duración en segundos
+    std::chrono::duration<double> timer_PD = fin_timer_PD - comienzo_timer_PD;
+
+    // Imprimir los resultados
+    std::cout << "Programacion Dinamica: error = " << PrograDinamica.error << ", puntos = ";
+    for (const auto& punto : PrograDinamica.puntos) {
+        std::cout << "(" << punto.first << ", " << punto.second << ") ";
+    }
+    std::cout << "\nTiempo de ejecución PD: " << timer_PD.count() << " segundos" << std::endl;
+
+////////////////////////////////////////////////////// FIN MAIN ///////////////////////////////////////////////////////////////////
     std::ofstream output("test_output.out");
 
     output << instance;

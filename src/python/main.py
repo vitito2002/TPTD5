@@ -172,7 +172,7 @@ def main():
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-# Seccion PROGRA DINAMICA
+# Seccion PROGRE DINAMICA
 
 	def calcular_error_MEMO(sol, x, y, memo):
 
@@ -294,7 +294,7 @@ def main():
 		json.dump(solution, f)
 	
 	###GRafico
-"""
+
 	plt.figure(figsize=(10, 6))
 	solucion = FB(grid_x,grid_y,x,y,5,sol)['puntos']
     
@@ -310,7 +310,7 @@ def main():
 	plt.title('Gráfico de Líneas de Puntos')
 	plt.grid(True)  # Mostrar cuadrícula
 	plt.show()
-"""
+
 	
 if __name__ == "__main__":
 	main()
