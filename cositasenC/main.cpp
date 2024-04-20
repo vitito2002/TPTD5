@@ -232,8 +232,8 @@ std::pair<double, std::map <std::vector<std::pair<double,double>>,double>> calcu
     return mejores_breakpoints;
 }
 
-//////////////////////////////////////////////////////////// MAIN //////////////////////////////////////////////////////
 
+//////////////////////////////////////////////////////////// MAIN //////////////////////////////////////////////////////
 
 int main(int argc, char** argv) {
 
@@ -338,56 +338,106 @@ int main(int argc, char** argv) {
     std::cout << "\nTiempo de ejecución PD: " << timer_PD.count() << " segundos" << std::endl;
 
 ////////////////////////////////////////////////////// FIN MAIN ///////////////////////////////////////////////////////////////////////
-  // Definir la cantidad de veces que se ejecutará cada algoritmo
-    int num_runs = 5;
+  
+    int T = 7;
 
-    // Vectores para almacenar los tiempos de ejecución y los errores de cada algoritmo
-    std::vector<double> fb_runtimes;
-    std::vector<double> bt_runtimes;
-    std::vector<double> pd_runtimes;
-    std::vector<double> errors;
+    std::cout<<"\n\n\n\n\n\n"<<std::endl;
 
-    // Ejecutar cada algoritmo num_runs veces y registrar los tiempos de ejecución y los errores
-    for (int i = 0; i < num_runs; ++i) {
-        // Ejecutar Fuerza Bruta y registrar el tiempo de ejecución
-        auto comienzo_timer_FB = std::chrono::high_resolution_clock::now();
+
+    std::cout<<T<<" iteraciones para la instancia JSON: "<<instance_name<<" en C++"<<std::endl;
+
+
+    ////////////////////////////////////////// TIEMPO FB //////////////////////7
+
+     // Inicializar los contadores de tiempo
+    double total_time_FB = 0.0;
+    double min_time_FB = std::numeric_limits<double>::max();
+    double max_time_FB = 0.0;
+
+    // Iterar T veces para llamar a la función FB
+    for (int i = 0; i < T; ++i) {
+        auto start_FB = std::chrono::high_resolution_clock::now();
         Resultado FuerzaBruta = FB(grid_x, grid_y, x, y, N, sol);
-        auto fin_timer_FB = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> timer_FB = fin_timer_FB - comienzo_timer_FB;
-        fb_runtimes.push_back(timer_FB.count());
+        auto end_FB = std::chrono::high_resolution_clock::now();
+        double duration_FB = std::chrono::duration<double>(end_FB - start_FB).count();
 
-        // Ejecutar Back Tracking y registrar el tiempo de ejecución
-        auto comienzo_timer_BT = std::chrono::high_resolution_clock::now();
-        Resultado BackTracking = BT(grid_x, grid_y, x, y, N, sol);
-        auto fin_timer_BT = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> timer_BT = fin_timer_BT - comienzo_timer_BT;
-        bt_runtimes.push_back(timer_BT.count());
-
-        // Ejecutar Programación Dinámica y registrar el tiempo de ejecución
-        auto comienzo_timer_PD = std::chrono::high_resolution_clock::now();
-        Resultado PrograDinamica = PD(grid_x, grid_y, x, y, N, sol, pitulon);
-        auto fin_timer_PD = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> timer_PD = fin_timer_PD - comienzo_timer_PD;
-        pd_runtimes.push_back(timer_PD.count());
-
-        // Calcular y registrar el error promedio
-        double error_promedio = (FuerzaBruta.error + BackTracking.error + PrograDinamica.error) / 3.0;
-        errors.push_back(error_promedio);
+        // Actualizar los tiempos totales, mínimos y máximos
+        total_time_FB += duration_FB;
+        min_time_FB = std::min(min_time_FB, duration_FB);
+        max_time_FB = std::max(max_time_FB, duration_FB);
     }
 
-    // Calcular el promedio de los tiempos de ejecución
-    double fb_avg_runtime = std::accumulate(fb_runtimes.begin(), fb_runtimes.end(), 0.0) / num_runs;
-    double bt_avg_runtime = std::accumulate(bt_runtimes.begin(), bt_runtimes.end(), 0.0) / num_runs;
-    double pd_avg_runtime = std::accumulate(pd_runtimes.begin(), pd_runtimes.end(), 0.0) / num_runs;
+    // Calcular el tiempo promedio
+    double avg_time_FB = total_time_FB / T;
 
-    // Calcular el promedio de los errores
-    double avg_error = std::accumulate(errors.begin(), errors.end(), 0.0) / errors.size();
+    // Imprimir los resultados para la función FB
+    std::cout << "\nFuerza Bruta:" << std::endl;
+    std::cout << "Tiempo promedio: " << avg_time_FB  << std::endl;
+    std::cout << "Mejor tiempo: " << min_time_FB <<  std::endl;
+    std::cout << "Peor tiempo: " << max_time_FB <<  std::endl;
+    std::cout << std::endl;
 
-    // Imprimir los resultados
-    std::cout << "Promedio de tiempos de ejecución (FB): " << fb_avg_runtime << " segundos" << std::endl;
-    std::cout << "Promedio de tiempos de ejecución (BT): " << bt_avg_runtime << " segundos" << std::endl;
-    std::cout << "Promedio de tiempos de ejecución (PD): " << pd_avg_runtime << " segundos" << std::endl;
-    std::cout << "Promedio de errores: " << avg_error << std::endl;
+    /////////////////////////////////////////////////////////////// TIEMPO BT
+
+    // Inicializar los contadores de tiempo
+    double total_time_BT = 0.0;
+    double min_time_BT = std::numeric_limits<double>::max();
+    double max_time_BT = 0.0;
+
+    // Iterar T veces para llamar a la función BT
+    for (int i = 0; i < T; ++i) {
+        auto start_BT = std::chrono::high_resolution_clock::now();
+        Resultado BackTracking = BT(grid_x, grid_y, x, y, N, sol);
+        auto end_BT = std::chrono::high_resolution_clock::now();
+        double duration_BT = std::chrono::duration<double>(end_BT - start_BT).count();
+
+        // Actualizar los tiempos totales, mínimos y máximos
+        total_time_BT += duration_BT;
+        min_time_BT = std::min(min_time_BT, duration_BT);
+        max_time_BT = std::max(max_time_BT, duration_BT);
+    }
+
+    // Calcular el tiempo promedio
+    double avg_time_BT = total_time_BT / T;
+
+    // Imprimir los resultados para la función BT
+    std::cout << "\nBackTracking:" << std::endl;
+    std::cout << "Tiempo promedio: " << avg_time_BT << std::endl;
+    std::cout << "Mejor tiempo: " << min_time_BT << std::endl;
+    std::cout << "Peor tiempo: " << max_time_BT  << std::endl;
+    std::cout << std::endl;
+
+    //////////////////////////////////////// TIEMPO PD
+
+    // Inicializar los contadores de tiempo
+    double total_time_PD = 0.0;
+    double min_time_PD = std::numeric_limits<double>::max();
+    double max_time_PD = 0.0;
+
+    // Iterar T veces para llamar a la función PD
+    for (int i = 0; i < T; ++i) {
+        auto start_PD = std::chrono::high_resolution_clock::now();
+        Resultado PrograDinamica = (PD(grid_x, grid_y, x, y, N, sol,pitulon));
+        auto end_PD = std::chrono::high_resolution_clock::now();
+        double duration_PD = std::chrono::duration<double>(end_PD - start_PD).count();
+
+        // Actualizar los tiempos totales, mínimos y máximos
+        total_time_PD += duration_PD;
+        min_time_PD = std::min(min_time_PD, duration_PD);
+        max_time_PD = std::max(max_time_PD, duration_PD);
+    }
+
+    // Calcular el tiempo promedio
+    double avg_time_PD = total_time_PD / T;
+
+    // Imprimir los resultados para la función PD
+    std::cout << "\nProgramación Dinámica:" << std::endl;
+    std::cout << "Tiempo promedio: " << avg_time_PD << std::endl;
+    std::cout << "Mejor tiempo: " << min_time_PD << std::endl;
+    std::cout << "Peor tiempo: " << max_time_PD  << std::endl;
+    std::cout << std::endl;
+
+    ////////////////////////////////////////77
 
     return 0;
 }
