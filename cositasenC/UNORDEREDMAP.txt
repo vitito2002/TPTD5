@@ -14,10 +14,7 @@
 
 #include <iterator>
 
-#include <map> //PD
-
-#include <numeric> // Para std::accumulate
-
+#include <unordered_map> //PD
 
 // Para libreria de JSON.
 using namespace nlohmann;
@@ -26,7 +23,7 @@ using namespace nlohmann;
 // x = double. coordenadas x del json
 // y = double. coordenadas y del json
 
-////////////////////////////////////////////////////////////// CALC ERROR ///////////////////////////////////////////////////
+////////////////////////////////////////////////////////////// CALC ERROR ////////////////////////////////////////////////////
 
 double calcular_error (const std::vector<std::pair<double,double>>&sol,
 const std::vector<double>&x,
@@ -151,7 +148,19 @@ Resultado FB(const std::vector<double>&grid_x, const std::vector<double>&grid_y,
 
 ///////////////////////////////////////////////////////////////////// PD //////////////////////////////////////////////////////////
 
-std::pair<double, std::map <std::vector<std::pair<double,double>>,double>> calcular_error_MEMO (const std::vector<std::pair<double,double>>&sol,const std::vector<double>&x, const std::vector<double>&y,std::map<std::vector<std::pair<double, double>>, double>& memo){
+struct HashVectorPair{
+    std::size_t operator()( const std::vector<std::pair<double,double>>&vec)const{
+        std::size_t hash= 0;
+        for (const auto& pair: vec){
+            std::size_t hash1 = std::hash<double>{}(pair.first);
+            std::size_t hash2 = std::hash<double>{}(pair.second);
+            hash ^= hash1 ^ hash2;
+        }
+        return hash;
+    }
+};
+
+std::pair<double, std::unordered_map <std::vector<std::pair<double,double>>,double, HashVectorPair>> calcular_error_MEMO (const std::vector<std::pair<double,double>>&sol,const std::vector<double>&x, const std::vector<double>&y,std::unordered_map<std::vector<std::pair<double, double>>, double, HashVectorPair>& memo){
 
     std::vector<std::pair<double,double>> clave = sol;
 
@@ -193,7 +202,7 @@ std::pair<double, std::map <std::vector<std::pair<double,double>>,double>> calcu
     return std::make_pair(error_funcion,memo);
 }
 
-    Resultado PD(const std::vector<double>&grid_x, const std::vector<double>&grid_y, const std::vector<double>&x, const std::vector<double>&y, int k, std::vector<std::pair<double,double>>&sol,std::map<std::vector<std::pair<double, double>>, double>&memo){
+    Resultado PD(const std::vector<double>&grid_x, const std::vector<double>&grid_y, const std::vector<double>&x, const std::vector<double>&y, int k, std::vector<std::pair<double,double>>&sol,std::unordered_map<std::vector<std::pair<double, double>>, double, HashVectorPair>&memo){
 
     if (grid_x.size() < static_cast<size_t>(k-sol.size())){
         Resultado resultado;
@@ -247,7 +256,7 @@ int main(int argc, char** argv) {
     input >> instance;
     input.close();
 
-////////////////////////////////////////////////////////// MAIN CATEDRA //////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////// MAIN CATEDRA ////////////////////////////////////////////////////////
 
     int K = instance["n"];
     int m = 6;
@@ -320,7 +329,7 @@ int main(int argc, char** argv) {
 
     //////////////////////////////////////////////////////////// EJECUCION PD /////////////////////////////////////////////////////////////////
 
-    std::map<std::vector<std::pair<double, double>>, double> pitulon;
+    std::unordered_map<std::vector<std::pair<double, double>>, double, HashVectorPair > pitulon;
 
     // Medir el tiempo de ejecución de la función BT
     auto comienzo_timer_PD = std::chrono::high_resolution_clock::now();
@@ -337,57 +346,12 @@ int main(int argc, char** argv) {
     }
     std::cout << "\nTiempo de ejecución PD: " << timer_PD.count() << " segundos" << std::endl;
 
-////////////////////////////////////////////////////// FIN MAIN ///////////////////////////////////////////////////////////////////////
-  // Definir la cantidad de veces que se ejecutará cada algoritmo
-    int num_runs = 5;
 
-    // Vectores para almacenar los tiempos de ejecución y los errores de cada algoritmo
-    std::vector<double> fb_runtimes;
-    std::vector<double> bt_runtimes;
-    std::vector<double> pd_runtimes;
-    std::vector<double> errors;
+///////////////////////////////////////////// FIN MAIN //////////////////////////
+    std::ofstream output("test_output.out");
 
-    // Ejecutar cada algoritmo num_runs veces y registrar los tiempos de ejecución y los errores
-    for (int i = 0; i < num_runs; ++i) {
-        // Ejecutar Fuerza Bruta y registrar el tiempo de ejecución
-        auto comienzo_timer_FB = std::chrono::high_resolution_clock::now();
-        Resultado FuerzaBruta = FB(grid_x, grid_y, x, y, N, sol);
-        auto fin_timer_FB = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> timer_FB = fin_timer_FB - comienzo_timer_FB;
-        fb_runtimes.push_back(timer_FB.count());
-
-        // Ejecutar Back Tracking y registrar el tiempo de ejecución
-        auto comienzo_timer_BT = std::chrono::high_resolution_clock::now();
-        Resultado BackTracking = BT(grid_x, grid_y, x, y, N, sol);
-        auto fin_timer_BT = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> timer_BT = fin_timer_BT - comienzo_timer_BT;
-        bt_runtimes.push_back(timer_BT.count());
-
-        // Ejecutar Programación Dinámica y registrar el tiempo de ejecución
-        auto comienzo_timer_PD = std::chrono::high_resolution_clock::now();
-        Resultado PrograDinamica = PD(grid_x, grid_y, x, y, N, sol, pitulon);
-        auto fin_timer_PD = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> timer_PD = fin_timer_PD - comienzo_timer_PD;
-        pd_runtimes.push_back(timer_PD.count());
-
-        // Calcular y registrar el error promedio
-        double error_promedio = (FuerzaBruta.error + BackTracking.error + PrograDinamica.error) / 3.0;
-        errors.push_back(error_promedio);
-    }
-
-    // Calcular el promedio de los tiempos de ejecución
-    double fb_avg_runtime = std::accumulate(fb_runtimes.begin(), fb_runtimes.end(), 0.0) / num_runs;
-    double bt_avg_runtime = std::accumulate(bt_runtimes.begin(), bt_runtimes.end(), 0.0) / num_runs;
-    double pd_avg_runtime = std::accumulate(pd_runtimes.begin(), pd_runtimes.end(), 0.0) / num_runs;
-
-    // Calcular el promedio de los errores
-    double avg_error = std::accumulate(errors.begin(), errors.end(), 0.0) / errors.size();
-
-    // Imprimir los resultados
-    std::cout << "Promedio de tiempos de ejecución (FB): " << fb_avg_runtime << " segundos" << std::endl;
-    std::cout << "Promedio de tiempos de ejecución (BT): " << bt_avg_runtime << " segundos" << std::endl;
-    std::cout << "Promedio de tiempos de ejecución (PD): " << pd_avg_runtime << " segundos" << std::endl;
-    std::cout << "Promedio de errores: " << avg_error << std::endl;
+    output << instance;
+    output.close();
 
     return 0;
 }
