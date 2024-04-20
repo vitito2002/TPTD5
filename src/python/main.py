@@ -306,7 +306,9 @@ def main():
 	worst_time_PD = max(times_PD)
 
 	 # Imprime los resultados
-	print("Fuerza Bruta:")
+	print(T,"iteraciones para la instancia JSON ",instance_name,":")
+
+	print("\nFuerza Bruta:")
 	print("Tiempo promedio:", avg_time_FB)
 	print("Mejor tiempo:", best_time_FB)
 	print("Peor tiempo:", worst_time_FB)
