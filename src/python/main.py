@@ -268,7 +268,7 @@ def main():
 """
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	T = 2
+	T = 7
 
 	times_FB = []
 	times_BT = []
@@ -339,8 +339,11 @@ def main():
 	# - y: lista con las coordenadas de la ordenada para cada breakpoint
 	solution = {}
 	solution['n'] = len(best['sol'])
-	solution['x'] = [grid_x[x[0]] for x in best['sol']]
-	solution['y'] = [grid_y[x[1]] for x in best['sol']]
+	# solution['x'] = [grid_x[x[0]] for x in best['sol']]
+	# solution['y'] = [grid_y[x[1]] for x in best['sol']]
+	solution['x'] = [grid_x[min(x[0], len(grid_x) - 1)] for x in best['sol']]
+	solution['y'] = [grid_y[min(x[1], len(grid_y) - 1)] for x in best['sol']]
+
 	solution['obj'] = best['obj']
 
 	# Se guarda el archivo en formato JSON
