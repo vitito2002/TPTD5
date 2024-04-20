@@ -268,7 +268,7 @@ def main():
 """
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	T = 7
+	T = 1
 
 	times_FB = []
 	times_BT = []
@@ -352,24 +352,40 @@ def main():
 	with open('solution_' + instance_name, 'w') as f:
 		json.dump(solution, f)
 	
-	###GRafico
-"""
-	plt.figure(figsize=(10, 6))
+	# Obtener los breakpoints generados por tu algoritmo
 	solucion = FB(grid_x,grid_y,x,y,5,sol)['puntos']
-    
+
+	# Extraer los valores de x e y de los breakpoints
 	x_solucion = [p[0] for p in solucion]
 	y_solucion = [p[1] for p in solucion]
-    
+
+	# Definir los límites de los ejes x e y basados en los breakpoints generados
+	min_x = min(x_solucion)
+	max_x = max(x_solucion)
+	min_y = min(y_solucion)
+	max_y = max(y_solucion)
+	###########################################################GRAFICOOO#######################################################
+	# Crear el gráfico
+	plt.figure(figsize=(10, 6))
+	solucion = FB(grid_x,grid_y,x,y,5,sol)['puntos']
+
+	x_solucion = [p[0] for p in solucion]
+	y_solucion = [p[1] for p in solucion]
+
 	plt.plot(x_solucion, y_solucion, marker='o', color='blue', label='Puntos de la solución')
-	
+
 	plt.scatter(x, y, marker='o', label='Puntos del JSON')  # marker='o'' agrega puntos en los puntos de datos
 	plt.xlabel('Coordenada X')
 	plt.ylabel('Coordenada Y')
 
-	plt.title('Gráfico de Líneas de Puntos')
+	plt.xticks(grid_x)  # Establece los ticks del eje x en los valores de grid_x
+	plt.yticks(grid_y)  # Establece los ticks del eje y en los valores de grid_y
+
+	plt.title('Gráfico de ' + instance_name[:-5])
 	plt.grid(True)  # Mostrar cuadrícula
+	plt.legend()  # Mostrar leyenda
 	plt.show()
-"""
+
 	
 if __name__ == "__main__":
 	main()
