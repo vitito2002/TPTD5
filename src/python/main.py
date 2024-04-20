@@ -152,7 +152,7 @@ def main():
 			return mejores_breakpoints
 
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
+	"""
 	comienzo_timer_FB = time.time()
 	FuerzaBruta = FB(grid_x, grid_y, x, y, N, sol)
 	fin_timer_FB = time.time()
@@ -168,7 +168,7 @@ def main():
 	timer_BT = fin_timer_BT - comienzo_timer_BT
 
 	print('Backtracking: ', BackTracking,'\n''Tiempo de ejecucion BT   : ',timer_BT)
-
+"""
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -257,6 +257,7 @@ def main():
 	pitulon = {}
 
 	#/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	"""
 	comienzo_timer_PD = time.time()
 	ProgramacionDinamica = (PD(grid_x,grid_y,x,y,N,sol,pitulon)[0])
 	fin_timer_PD = time.time()
@@ -264,8 +265,61 @@ def main():
 	timer_PD = fin_timer_PD - comienzo_timer_PD
 
 	print('Programacion Dinamica: ', ProgramacionDinamica,'\n''Tiempo de ejecucion PD   : ',timer_PD)
-
+"""
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	T = 2
+
+	times_FB = []
+	times_BT = []
+	times_PD = []
+
+	for t in range(T):
+		comienzo_timer_FB = time.time()
+		FuerzaBruta = FB(grid_x, grid_y, x, y, N, sol)
+		fin_timer_FB = time.time()
+		timer_FB = fin_timer_FB - comienzo_timer_FB
+		times_FB.append(timer_FB)
+
+		comienzo_timer_BT = time.time()
+		BackTracking = BT(grid_x,grid_y,x,y,N,sol)
+		fin_timer_BT = time.time()
+		timer_BT = fin_timer_BT - comienzo_timer_BT
+		times_BT.append(timer_BT)
+
+		comienzo_timer_PD = time.time()
+		ProgramacionDinamica = (PD(grid_x,grid_y,x,y,N,sol,pitulon)[0])
+		fin_timer_PD = time.time()
+		timer_PD = fin_timer_PD - comienzo_timer_PD
+		times_PD.append(timer_PD)
+
+	avg_time_FB = sum(times_FB) / T
+	best_time_FB = min(times_FB)
+	worst_time_FB = max(times_FB)
+
+	avg_time_BT = sum(times_BT) / T
+	best_time_BT = min(times_BT)
+	worst_time_BT = max(times_BT)
+
+	avg_time_PD = sum(times_PD) / T
+	best_time_PD = min(times_PD)
+	worst_time_PD = max(times_PD)
+
+	 # Imprime los resultados
+	print("Fuerza Bruta:")
+	print("Tiempo promedio:", avg_time_FB)
+	print("Mejor tiempo:", best_time_FB)
+	print("Peor tiempo:", worst_time_FB)
+
+	print("\nBackTracking:")
+	print("Tiempo promedio:", avg_time_BT)
+	print("Mejor tiempo:", best_time_BT)
+	print("Peor tiempo:", worst_time_BT)
+
+	print("\nProgramación Dinámica:")
+	print("Tiempo promedio:", avg_time_PD)
+	print("Mejor tiempo:", best_time_PD)
+	print("Peor tiempo:", worst_time_PD)
 
 
 	best = {}
@@ -294,7 +348,7 @@ def main():
 		json.dump(solution, f)
 	
 	###GRafico
-
+"""
 	plt.figure(figsize=(10, 6))
 	solucion = FB(grid_x,grid_y,x,y,5,sol)['puntos']
     
@@ -310,7 +364,7 @@ def main():
 	plt.title('Gráfico de Líneas de Puntos')
 	plt.grid(True)  # Mostrar cuadrícula
 	plt.show()
-
+"""
 	
 if __name__ == "__main__":
 	main()
