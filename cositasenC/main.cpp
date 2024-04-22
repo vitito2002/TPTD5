@@ -239,7 +239,7 @@ int main(int argc, char** argv) {
 
 //////////////////////////////////////////////////////// JSON ///////////////////////////////////////////////////////////////////////
 
-    std::string instance_name = "titanium.json";
+    std::string instance_name = "optimistic_instance.json";
     std::cout << "Reading file " << instance_name << std::endl;
     std::ifstream input(instance_name);
 
@@ -250,8 +250,8 @@ int main(int argc, char** argv) {
 ////////////////////////////////////////////////////////// MAIN CATEDRA //////////////////////////////////////////////////////////
 
     int K = instance["n"];
-    int m = 6;
-    int n = 6;
+    int m = 7;
+    int n = 7;
     int N = 5;
 
      // Extraer `x` e `y` del JSON y almacenarlos en vectores
@@ -284,6 +284,8 @@ int main(int argc, char** argv) {
     std::vector<std::pair<double, double>> sol;
 
     std::cout <<"Cantidad de puntos JSON: "<< K << std::endl;
+
+std:: cout<<"JSON: "<<instance_name <<"con " << m<< " filas " <<n<< " columnas y " <<N << " breakpoints:  \n";
 ///////////////////////////////////////////////////////////////// EJECUCION FB //////////////////////////////////////////////////////////////
  
     // Medir el tiempo de ejecución de la función FB
@@ -320,11 +322,11 @@ int main(int argc, char** argv) {
 
     //////////////////////////////////////////////////////////// EJECUCION PD /////////////////////////////////////////////////////////////////
 
-    std::map<std::vector<std::pair<double, double>>, double> pitulon;
+    std::map<std::vector<std::pair<double, double>>, double> aux;
 
     // Medir el tiempo de ejecución de la función BT
     auto comienzo_timer_PD = std::chrono::high_resolution_clock::now();
-    Resultado PrograDinamica = (PD(grid_x, grid_y, x, y, N, sol,pitulon));
+    Resultado PrograDinamica = (PD(grid_x, grid_y, x, y, N, sol,aux));
     auto fin_timer_PD = std::chrono::high_resolution_clock::now();
 
     // Calcular la duración en segundos
@@ -339,6 +341,7 @@ int main(int argc, char** argv) {
 
 ////////////////////////////////////////////////////// FIN MAIN ///////////////////////////////////////////////////////////////////////
   
+  /*
     int T = 7;
 
     std::cout<<"\n\n\n\n\n\n"<<std::endl;
@@ -417,7 +420,7 @@ int main(int argc, char** argv) {
     // Iterar T veces para llamar a la función PD
     for (int i = 0; i < T; ++i) {
         auto start_PD = std::chrono::high_resolution_clock::now();
-        Resultado PrograDinamica = (PD(grid_x, grid_y, x, y, N, sol,pitulon));
+        Resultado PrograDinamica = (PD(grid_x, grid_y, x, y, N, sol,aux));
         auto end_PD = std::chrono::high_resolution_clock::now();
         double duration_PD = std::chrono::duration<double>(end_PD - start_PD).count();
 
@@ -437,6 +440,7 @@ int main(int argc, char** argv) {
     std::cout << "Peor tiempo: " << max_time_PD  << std::endl;
     std::cout << std::endl;
 
+*/
     ////////////////////////////////////////77
 
     return 0;
